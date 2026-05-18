@@ -1,0 +1,23 @@
+# IDE
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+venv/
+
+# Dataset (important)
+creditcard.csv
+
+# System files
+.DS_Store
+Thumbs.db
+# Ignore presentations & documents
+*.pptx
+*.pdf
+
+# Ignore base papers folder
+BASE_PAPERS/
