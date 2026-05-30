@@ -1,65 +1,62 @@
-# 💳 Real-Time Credit Card Fraud Detection System
+# 💳 FraudShield: Real-Time Credit Card Fraud Detection System
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/Flask-API-black?style=for-the-badge&logo=flask&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Machine%20Learning-XGBoost%20%7C%20SVM%20%7C%20RandomForest-orange?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Accuracy-99.9%25-brightgreen?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Machine%20Learning-ESMOTE--GAN%20%7C%20Random%20Forest%20%7C%20XGBoost-orange?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/AUC--ROC-0.9771-brightgreen?style=for-the-badge"/>
   <img src="https://img.shields.io/github/license/VenkatAnand07/credit_card_fraud_detection?style=for-the-badge"/>
 </p>
 
-<p align="center">
-  A Machine Learning-based system to detect fraudulent credit card transactions in real-time using <strong>SMOTE + Ensemble Models</strong>, deployed with a <strong>Flask Web Application</strong>.
-</p>
-
-<p align="center">
-  <a href="https://github.com/VenkatAnand07/credit_card_fraud_detection">
-    <img src="https://img.shields.io/badge/🔗 View%20on%20GitHub-181717?style=for-the-badge&logo=github"/>
-  </a>
-  <!-- Replace the URL below with your deployed app link when available -->
-  <!-- <a href="https://your-deployed-app-url.com">
-    <img src="https://img.shields.io/badge/🌐 Live%20Demo-00C7B7?style=for-the-badge&logo=netlify&logoColor=white"/>
-  </a> -->
-</p>
+An enhanced Machine Learning-based system to detect fraudulent credit card transactions in real-time. It is based on **ESMOTE-GAN** (Ensemble Synthesized Minority Oversampling-Based Generative Adversarial Networks) and a **Weighted Random Forest Ensemble**, boosted with a **global XGBoost classifier**, and served via an interactive **Flask Web Dashboard**.
 
 ---
 
-## 🚀 Key Highlights
+## 📖 Research Foundation & Paper Reference
 
-| Feature | Description |
-|--------|-------------|
-| ⚡ Real-time Detection | Predicts fraud instantly via Flask API |
-| 📊 Imbalanced Data Handling | Uses **SMOTE** to oversample minority (fraud) class |
-| 🤖 Ensemble Learning | Combines **SVM, Random Forest & XGBoost** |
-| 🎯 High Accuracy | Achieves ~99.9% accuracy with ~0.97+ AUC-ROC |
-| 📈 Explainable Output | Returns fraud probability, risk level & feature impact |
+This project is an extended and enhanced implementation of the base research paper:
+> **Paper Title:** *"Ensemble Synthesized Minority Oversampling-Based Generative Adversarial Networks and Random Forest Algorithm for Credit Card Fraud Detection"*  
+> **Journal:** IEEE Access (2023)  
+> **DOI:** [10.1109/ACCESS.2023.3306621](https://doi.org/10.1109/ACCESS.2023.3306621)
 
 ---
 
-## 📊 Model Performance
+## 🚀 Key Enhancements over the Base Paper
 
-| Metric | Score |
-|--------|-------|
-| ✅ Accuracy | ~99.9% |
-| 🎯 Precision (Fraud) | ~95% |
-| 🔍 Recall (Fraud) | ~85–90% |
-| 📐 F1 Score | ~0.90+ |
-| 📉 AUC-ROC | ~0.97+ |
+The base paper focuses primarily on offline SMOTE-GAN generation and Random Forest classification. This project introduces four major production-grade enhancements:
 
-> ⚠️ **Note:** Accuracy alone can be misleading for imbalanced datasets. **Recall** and **F1-score** are more critical metrics for fraud detection.
+1. **Hybrid XGBoost Ensemble Boosting:** A global XGBoost classifier trained on all augmented data is integrated alongside the five RF sub-classifiers via a weighted probabilistic voting scheme.
+2. **Adaptive PR-Optimal Thresholding:** Instead of using a standard fixed `0.5` decision boundary (which leads to sub-optimal F1 scores on highly imbalanced fraud datasets), the model automatically searches the Precision-Recall curve to find the threshold that maximizes the F1-Score (`0.9765`).
+3. **Interactive Dark Cybernetic Dashboard:** A real-time web portal ("*Be Aware Of Frauds*") built with Flask, styled using a premium, dark-mode visual interface with a dynamic cyber grid layout.
+4. **Explainable AI (XAI) Reason Logs:** Every prediction returns natural-language explanations explaining *why* a transaction was flagged, mapping anonymized PCA variables to human-readable spending, velocity, and authentication signals.
 
 ---
 
-## 🧠 Technologies Used
+## 📈 Model Performance & Metrics
 
-| Category | Tools |
-|----------|-------|
-| Language | Python 3.10+ |
-| Data Processing | Pandas, NumPy |
-| Machine Learning | Scikit-learn, XGBoost, imbalanced-learn (SMOTE) |
-| Web Framework | Flask |
-| Frontend | HTML, CSS |
-| Serialization | Pickle |
+The ensemble was evaluated on the Kaggle Credit Card Fraud Detection dataset (Stratified 80/20 train/test split). 
+
+Below are the actual metrics stored in the trained model (`fraud_model.pkl`):
+
+| Metric | Score | Key Takeaway |
+|:---|:---|:---|
+| **AUC-ROC** | **0.9771** | Exceptional class separation ability |
+| **Precision** | **86.21%** | Highly reliable fraud alerts with low false alarms |
+| **Recall** | **76.53%** | Captures over 3/4 of all true fraud occurrences |
+| **F1-Score** | **0.8108** | Strong balanced performance on the minority class |
+| **False Alarm Rate (FPR)** | **0.02%** | Legitimate transactions are rarely misclassified |
+| **Decision Threshold** | **0.9765** | Dynamically tuned to maximize precision & recall trade-off |
+
+---
+
+## 🧠 System Architecture
+
+The model uses a multi-stage training pipeline:
+1. **ESMOTE Partitioning:** Splits the imbalanced training data into 5 diverse subsets using combination undersampling (to ~10:1) and SMOTE (to ~2:1).
+2. **Lightweight GAN Generation:** Fits a custom MLP Generative Adversarial Network (Generator + Discriminator) on the fraud samples of each subset to synthesize high-fidelity fake fraud samples.
+3. **Sub-Ensemble Training:** Trains 5 independent Random Forest models on each augmented subset, weighting their votes using their validation AUC.
+4. **Global XGBoost Integration:** Fits a global gradient-boosted tree model over all subsets.
+5. **Weighted Probability Fusion:** Melds the outputs of the RF Sub-Ensembles and the XGBoost model to produce the final fraud probability.
 
 ---
 
@@ -68,22 +65,22 @@
 ```
 credit_card_fraud_detection/
 │
-├── app.py                  # Flask API for real-time predictions
-├── train_model.py          # Model training script
-├── fraud_model.pkl         # Trained ensemble model
-├── scaler.pkl              # Feature scaler
-├── feature_cols.pkl        # Feature column names
-├── demo_samples.pkl        # Sample data for demo
-├── confusion_matrix.png    # Model evaluation visualization
-├── requirements.txt        # Python dependencies
+├── app.py                  # Flask Web App & Real-Time Prediction API
+├── train_model.py          # Model training pipeline (ESMOTE-GAN + Weighted RF + XGBoost)
+├── fraud_model.pkl         # Serialized final ensemble model, weights, & metrics
+├── scaler.pkl              # Fitted StandardScaler for 'Time' & 'Amount'
+├── feature_cols.pkl        # Serialized feature column order
+├── demo_samples.pkl        # Pre-extracted sample data for UI demo buttons
+├── confusion_matrix.png    # Heatmap visualization of final test set results
+├── requirements.txt        # Python dependency manifest
 ├── templates/
-│   └── index.html          # Web UI for prediction
-└── creditcard.csv          # Dataset (not pushed to GitHub)
+│   └── index.html          # Cyberpunk-style interactive Web UI
+└── creditcard.csv          # Dataset file (not committed to Git)
 ```
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Setup & Quick Start
 
 ### 1️⃣ Clone the Repository
 ```bash
@@ -92,50 +89,55 @@ cd credit_card_fraud_detection
 ```
 
 ### 2️⃣ Install Dependencies
+Ensure you have Python 3.10+ installed. Install the required libraries:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Train the Model (Optional — pre-trained model included)
+### 3️⃣ Train the Model (Optional)
+The pre-trained model is already included. If you want to retrain the pipeline using the dataset:
+1. Download `creditcard.csv` from [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
+2. Save it in the project root directory.
+3. Run:
 ```bash
 python train_model.py
 ```
 
-### 4️⃣ Run the Flask App
+### 4️⃣ Launch the Flask Dashboard
+Start the application:
 ```bash
 python app.py
 ```
 
-### 5️⃣ Open in Browser
+### 5️⃣ Access the App
+Open your web browser and navigate to:
 ```
-http://127.0.0.1:5000
+http://127.0.0.1:5000/
 ```
 
 ---
 
-## 🌐 Live Demo
+## 🖥️ Web Interface Features
 
-> 🚧 Deployment coming soon! The app is currently running locally.  
-> Once deployed, the live link will be updated here.
-
----
-
-## 📌 Dataset
-
-- **Source:** [Kaggle - Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
-- **Size:** 284,807 transactions
-- **Fraud Rate:** ~0.17% (highly imbalanced)
-- **Features:** 30 anonymized PCA features (V1–V28, Amount, Time)
+- **Live System Health Check:** Queries `/model_info` and `/health` to show online status.
+- **One-Click Legit/Fraud Demos:** Automatically pre-fills inputs using real test-set samples to demonstrate model behavior instantly.
+- **Interpolative Feature Construction:** Dynamic HTML dropdowns map to semantic categories (Time of Day, Location, Velocity, Card Age, and Transaction Type) which automatically adjust PCA features ($V_1$ to $V_{28}$) behind the scenes to test custom manual scenarios.
+- **Scan Visualization:** Runs a live scan line micro-animation while processing predictions.
+- **Risk Level Alerts:** Displays risk levels dynamically: `LOW` (green), `MEDIUM` (amber), `HIGH` (red), and `CRITICAL` (deep red).
+- **Explainable Insights:** Outlines the top-5 feature influences and provides natural language actionable advice (e.g., *Allow*, *Monitor*, *Flag for review*, *Block immediately*).
 
 ---
 
-## 👤 Author
+## 👤 Author & Academic Details
 
-**VenkatAnand07**  
-🔗 GitHub: [@VenkatAnand07](https://github.com/VenkatAnand07)
+* **Author:** Koganti Venkata Anand  
+* **Roll Number:** 24FE1F0071  
+* **Degree:** Master of Computer Applications (MCA)  
+* **Institution:** Vignan's Lara Institute of Technology & Science (VLITS)  
+* **GitHub:** [@VenkatAnand07](https://github.com/VenkatAnand07)
 
 ---
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open-source and released under the [MIT License](LICENSE).
